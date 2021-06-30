@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Custom TinyMCE</title>
+
+    <link rel="stylesheet" href="custom.css">
+
+    <script src="https://cdn.tiny.cloud/1/rvlpd09j4e1a7wph1g6if5j5k5kxudin72m4cwwvgoeu6c9w/tinymce/5/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: "textarea",
+            plugins: "synonym",
+            toolbar: "undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | indent outdent | synonym"
+        });
+    </script>
+    <script src="synonym.js"></script>
+</head>
+
+<body>
+    <textarea name="editor" id="text_space" cols=30% rows=30%>
+        This editor has a synonym Lookup feature!
+    </textarea>
+</body>
+</html>
