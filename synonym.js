@@ -1,87 +1,89 @@
 // Adding the plugin
-tinymce.PluginManager.add("synonym", function(editor, url){
-  // fetch API for Synonyms
-  function fetchSynonyms(searchTerm){
-    //final url after searchWord is sanitized
-    url = "https://api.datamuse.com/words?ml=" + searchTerm
-    let searchResults = []
-    //fetching the searchResults
+tinymce.PluginManager.add('synonym', function(editor, url){
+  // fetch synonyms using Datamuse API
+  editor.fetchSynonyms = function(searchTerm){
+
+    let resultsDOM = document.getElementById('results')
+    resultsDOM.innerHTML = "<div class = 'loader_body'><div class = 'loader'></div></div>"
+    // sanitize the searchTerm
+    let finalSearchTerm = searchTerm.replace(/ /g, '')
+    let url = "https://api.datamuse.com/words?ml=" + finalSearchTerm
+
     fetch(url).then((response) =>{
       return response.json()
     }).then((data) => {
+      let result_data = Array.from(data)
+      editor.populateResults(result_data)
+    })
+  }
 
-      for(let i = 0; i < Math.min(data.length, 10); i++)
-      {
-        let elem = {}
-        elem['value'] = data[i].word 
-        elem['text'] = data[i].word
+  // populating the results_area
+  editor.populateResults = function(result_data) {
 
-        searchResults.push(elem)
-      }
+    let htmlStr = ""
+    result_data.forEach(function(result_option) {
+      htmlStr += "<div class = 'results_synonym'>"
+      htmlStr += result_option.word
+      htmlStr += "</div>"
     })
 
-    return searchResults;
+    let resultsDOM = document.getElementById('results')
+    resultsDOM.innerHTML = htmlStr
   }
-  // Synonym Pop-up
-  let openPopup = {
-      title: 'Lookup Synoyms',
-      name: 'popup_window',
-      body: {
-        type: 'panel',
-        items: [
-          {
-            type: 'input',
-            name: 'inp_word',
-          },
-          {
-            type: 'selectbox',
-            name: 'select_synonym',
-            label: 'Synonyms:',
-            disabled: true,
-            items: [],
-            onselect: function(e){
-              console.log(this.value)
-              editor.insertContent(this.value)
-            },
-          }
-        ]
-      },
-      buttons: [
+
+  //The synonym pop-up
+  let synonymPopup = {
+
+    title: 'Lookup Synoyms',
+    body: {
+      type: 'panel',
+      items: [
         {
-          type: 'submit',
-          name: 'search_btn',
-          text: 'search',
+          type: 'htmlpanel',
+          name: 'instruction',
+          html: '<h5>Type in the word</h5>'
+        },
+        {
+          type: 'input',
+          name: 'search_word'
+        },
+        {
+          type: 'htmlpanel',
+          name: 'results_area',
+          html: "<div class = 'results_body' id = 'results'><h4>Synonyms:</h4></div>"
         }
-      ],
+      ]
+    },
+    buttons: [],
+    onSubmit: function(e){
 
-      onSubmit: function(popup){
-        console.log('changed')
-        let data = popup.getData()
+      // e.preventDefault()
+      let resultsDOM = document.getElementById('results')
+      let data = e.getData()
 
-        if(data.inp_word.length != 0)
+      if(data.search_word.length != 0)
+      {
+        if(/^[a-zA-Z\s]*$/.test(data.search_word))
         {
-          if(/^[a-zA-Z\s]*$/.test(data.inp_word))
-          {
-            let result = fetchSynonyms(data.inp_word)
-            popup.setData(openPopup.body.items[1].items = result)
-            popup.setData(openPopup.body.items[1].disabled = false)
-            //insert synonym
-          }
-          else
-            alert("Please enter a valid word")
+          editor.fetchSynonyms(data.search_word)
         }
         else
-        { 
-           alert("Please enter a word in the input")
-        }
-      },
+          resultsDOM.innerHTML = "Please enter a valid word."
+      }
+      else
+      { 
+          resultsDOM.innerHTML = "Please enter a word in the input"
+      }
     }
-  // Adding a button for Pop-up 
-  editor.ui.registry.addButton("synonym", {
+  }
+
+  // Adding a button to the toolbar for synonym pop-up 
+  editor.ui.registry.addButton('synonym', {
+
     text: "Lookup Synonyms",
     onAction: function(){
-      // Open a Pop-up window
-      editor.windowManager.open(openPopup);
+      // Opens a Pop-up window
+      editor.windowManager.open(synonymPopup)
     }
   })
 
