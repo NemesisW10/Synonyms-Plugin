@@ -1,47 +1,64 @@
-// Adding the plugin
-tinymce.PluginManager.add('synonym', function(editor, url){
-  // fetch synonyms using Datamuse API
-  editor.fetchSynonyms = function(searchTerm){
+// Adding the Synonym Plugin
+tinymce.PluginManager.add('synonym', function(editor, url) {
+  
+  // Click callback to insert the selected word into the editor
+  let insertSynonym = function(e) {
+
+    e.stopPropagation()
+
+    editor.insertContent(e.target.textContent)
+    editor.windowManager.close()
+  }
+
+  // Fetching synonyms using Datamuse API
+  editor.fetchSynonyms = function(searchTerm) {
 
     let resultsDOM = document.getElementById('results')
-    resultsDOM.innerHTML = "<div class = 'loader_body'><div class = 'loader'></div></div>"
-    // sanitize the searchTerm
-    let finalSearchTerm = searchTerm.replace(/ /g, '')
-    let url = "https://api.datamuse.com/words?ml=" + finalSearchTerm
+    resultsDOM.innerHTML = "<div id = 'loader_body'><div id = 'loader'></div></div>"
+    // using datamuse API to retrieve synonyms & related words
+    let url = "https://api.datamuse.com/words?ml=" + searchTerm
 
-    fetch(url).then((response) =>{
+    fetch(url).then((response) => {
       return response.json()
     }).then((data) => {
-      let result_data = Array.from(data)
-      editor.populateResults(result_data)
+      editor.populateResults(data)
     })
   }
 
-  // populating the results_area
+  // Populating the results_area
   editor.populateResults = function(result_data) {
 
-    let htmlStr = ""
-    result_data.forEach(function(result_option) {
-      htmlStr += "<div class = 'results_synonym'>"
-      htmlStr += result_option.word
-      htmlStr += "</div>"
-    })
-
     let resultsDOM = document.getElementById('results')
-    resultsDOM.innerHTML = htmlStr
+
+    if(result_data.length == 0)
+    { 
+        resultsDOM.innerHTML = "No synonym found, Please try entering a correct word"
+    }
+    else
+    {
+      let htmlStr = ""
+      result_data.forEach(function(result_option) {
+        htmlStr += "<div class = 'results_synonym'>"
+        htmlStr += result_option.word
+        htmlStr += "</div>"
+      })
+
+      resultsDOM.innerHTML = htmlStr
+      resultsDOM.addEventListener('click', insertSynonym)
+    }
   }
 
-  //The synonym pop-up
+  // The Synonym Pop-up
   let synonymPopup = {
 
-    title: 'Lookup Synoyms',
+    title: 'Lookup Synonyms',
     body: {
       type: 'panel',
       items: [
         {
           type: 'htmlpanel',
-          name: 'instruction',
-          html: '<h5>Type in the word</h5>'
+          name: 'instructions',
+          html: "<div id = instruct><h3>Please type in a word:</h3></div>"
         },
         {
           type: 'input',
@@ -50,17 +67,17 @@ tinymce.PluginManager.add('synonym', function(editor, url){
         {
           type: 'htmlpanel',
           name: 'results_area',
-          html: "<div class = 'results_body' id = 'results'><h4>Synonyms:</h4></div>"
+          html: "<div id = 'results_body'><h2>Synonyms:</h2><div id = 'results'></div></div>"
         }
       ]
     },
     buttons: [],
-    onSubmit: function(e){
+    onSubmit: function(e) {
 
-      // e.preventDefault()
       let resultsDOM = document.getElementById('results')
       let data = e.getData()
 
+      // checking if the entered word is valid
       if(data.search_word.length != 0)
       {
         if(/^[a-zA-Z\s]*$/.test(data.search_word))
@@ -72,17 +89,17 @@ tinymce.PluginManager.add('synonym', function(editor, url){
       }
       else
       { 
-          resultsDOM.innerHTML = "Please enter a word in the input"
+          resultsDOM.innerHTML = "Please enter a word before submitting."
       }
     }
   }
 
-  // Adding a button to the toolbar for synonym pop-up 
+  // Adding the button for Synonym Pop-up to the toolbar 
   editor.ui.registry.addButton('synonym', {
 
     text: "Lookup Synonyms",
-    onAction: function(){
-      // Opens a Pop-up window
+    onAction: function() {
+      // opens the Pop-up window
       editor.windowManager.open(synonymPopup)
     }
   })
