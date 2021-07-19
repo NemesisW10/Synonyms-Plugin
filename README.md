@@ -1,7 +1,7 @@
 
 # Synonyms Plugin
 
-A TinyMCE Plugin to lookup for synonyms so that you can write great piece of articles !
+A TinyMCE Plugin to lookup synonyms so that you can write great piece of articles !
 
 
 ## Author:
