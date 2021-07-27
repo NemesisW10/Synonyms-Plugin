@@ -85,11 +85,11 @@ tinymce.PluginManager.add('synonym', function(editor, url) {
           editor.fetchSynonyms(data.search_word)
         }
         else
-          resultsDOM.innerHTML = "Please enter a valid word."
+          resultsDOM.innerHTML = "Please enter a valid word"
       }
       else
       { 
-          resultsDOM.innerHTML = "Please enter a word before submitting."
+          resultsDOM.innerHTML = "Please enter a word before submitting"
       }
     }
   }
