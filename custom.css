@@ -1,6 +1,53 @@
-.loader_body {
-    background-color: blanchedalmond;
-    border: 10px black;
-    width: 40px;
-    height: 40px;
+/* TinyMCE editor body */
+.tox.tox-tinymce{
+    position: absolute;
+    height: 70% !important;
+    width: 98.5%;
+}
+
+/* Synonym Popup */
+.tox-dialog{
+    width: 39% !important;
+}
+#instruct > h3{
+    font-size: 17px;
+}
+#results_body h2{
+    margin-top: 6px;
+    text-decoration: underline;
+}
+#results{
+    position: relative;
+    width: 100%;
+    height: 169px;
+    overflow-y: scroll;
+}
+#results > .results_synonym{
+    font-size: 16px;
+    margin: 2px;
+    padding: 5px 3px;
+}
+#results > .results_synonym:hover{
+    background-color: rgb(228, 228, 228);
+    color: black;
+}
+
+/* Loader */
+#loader_body{
+	margin-top: 13%;
+    margin-left: 45%;
+}
+#loader{
+    position: relative;
+    border: 4px solid rgb(224, 224, 224);
+    border-radius: 50%;
+    border-top: 6px solid rgb(92, 92, 92);
+    width: 50px;
+    height: 50px;
+    animation: spinner 0.5s linear infinite;
+}
+@keyframes spinner {
+  to{
+      transform: rotate(360deg);
+  }
 }
